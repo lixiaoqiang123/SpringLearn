@@ -220,6 +220,17 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		}
 	}
 
+	/**
+	 * 获取构造器集合
+	 * 		如果有多个Autowire的，required为true，不管有没有默认构造方法，会报异常
+	 * 		如果只有一个Autowired，required为false，没有默认构造方法，会报警告
+	 * 		如果没有Autowired注解，定义了两个及以上有参数的构造方法，没有无参构造方法，就会报错 ？？？？
+	 * 		其他情况都可以，但是以有Autowired的构造方法优先，然后才是默认构造方法
+	 * @param beanClass
+	 * @param beanName
+	 * @return
+	 * @throws BeansException
+	 */
 	@Override
 	public Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, String beanName) throws BeansException {
 		// Quick check on the concurrent map first, with minimal locking.

@@ -173,6 +173,7 @@ class ConfigurationClassParser {
 	 */
 	protected AnnotationMetadata doProcessConfigurationClass(ConfigurationClass configClass, AnnotationMetadata metadata) throws IOException {
 		// Recursively process any member (nested) classes first
+		// 递归处理内部类
 		processMemberClasses(metadata);
 
 		// Process any @PropertySource annotations

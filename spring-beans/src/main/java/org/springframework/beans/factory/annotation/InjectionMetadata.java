@@ -60,7 +60,7 @@ public class InjectionMetadata {
 		this.injectedElements = elements;
 	}
 
-
+	// 修改mergedBeanDefinition属性
 	public void checkConfigMembers(RootBeanDefinition beanDefinition) {
 		Set<InjectedElement> checkedElements = new LinkedHashSet<InjectedElement>(this.injectedElements.size());
 		for (InjectedElement element : this.injectedElements) {

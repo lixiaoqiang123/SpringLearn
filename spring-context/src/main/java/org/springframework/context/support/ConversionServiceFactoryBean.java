@@ -49,6 +49,9 @@ import org.springframework.core.convert.support.GenericConversionService;
  */
 public class ConversionServiceFactoryBean implements FactoryBean<ConversionService>, InitializingBean {
 
+	/**
+	 * 存放自定义的转换器
+	 */
 	private Set<?> converters;
 
 	private GenericConversionService conversionService;

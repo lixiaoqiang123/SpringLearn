@@ -30,6 +30,7 @@ import java.lang.annotation.Target;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -50,8 +51,9 @@ public class ComponentScanParserTests {
 
 	@Test
 	public void testAspectJTypeFilter() {
-		ApplicationContext context = new ClassPathXmlApplicationContext(
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
 				"org/springframework/context/annotation/aspectjTypeFilterTests.xml");
+		ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
 		assertTrue(context.containsBean("fooServiceImpl"));
 		assertTrue(context.containsBean("stubFooDao"));
 		assertFalse(context.containsBean("scopedProxyTestBean"));

@@ -219,6 +219,10 @@ public abstract class AopUtils {
 		classes.add(targetClass);
 		for (Class<?> clazz : classes) {
 			Method[] methods = clazz.getMethods();
+			//只要有一个方法能匹配到就返回true
+			//这里就会有一个问题：因为在一个目标中可能会存在多个方法，有的方法满足这个切点的匹配规则
+			//但是也有可能有一些方法是不匹配切点规则的。这里检测的是只有一个Method满足切点规则就返回true了
+			//所以在运行时进行方法拦截的时候还会有一次运行时的方法切点规则匹配
 			for (Method method : methods) {
 				if ((introductionAwareMethodMatcher != null &&
 						introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions)) ||

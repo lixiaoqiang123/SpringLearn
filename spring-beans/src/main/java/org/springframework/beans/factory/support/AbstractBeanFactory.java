@@ -882,13 +882,17 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @throws BeanDefinitionStoreException in case of an invalid bean definition
 	 */
 	public BeanDefinition getMergedBeanDefinition(String name) throws BeansException {
+		//获取真正的beanName
 		String beanName = transformedBeanName(name);
 
 		// Efficiently check whether bean definition exists in this factory.
 		if (!containsBeanDefinition(beanName) && getParentBeanFactory() instanceof ConfigurableBeanFactory) {
+			//如果当前BeanFactory中不存在beanName的Bean定义 && 父beanFactory是ConfigurableBeanFactory
+			//则调用父BeanFactory去获取beanName的MergedBeanDefintion
 			return ((ConfigurableBeanFactory) getParentBeanFactory()).getMergedBeanDefinition(beanName);
 		}
 		// Resolve merged bean definition locally.
+		// 在当前BeanFactory中解析beanName的MergedBeanDefintion
 		return getMergedLocalBeanDefinition(beanName);
 	}
 
@@ -1104,10 +1108,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	protected RootBeanDefinition getMergedLocalBeanDefinition(String beanName) throws BeansException {
 		// Quick check on the concurrent map first, with minimal locking.
+		// 检查beanName对应的mergedBeanDefinitions是否存在于缓存中，此缓存是在beanFactoryPostProcessor中添加的
 		RootBeanDefinition mbd = this.mergedBeanDefinitions.get(beanName);
 		if (mbd != null) {
+			// 如果存在直接返回
 			return mbd;
 		}
+		// 如果不存在缓存中，根据beanName和BeanDefintion，获取mergedBeanDefintions
 		return getMergedBeanDefinition(beanName, getBeanDefinition(beanName));
 	}
 
@@ -1181,7 +1188,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 								"Could not resolve parent bean definition '" + bd.getParentName() + "'", ex);
 					}
 					// Deep copy with overridden values.
+					// 先根据父beanDefinition创建RootBeanDefinition
 					mbd = new RootBeanDefinition(pbd);
+					// 覆盖父beanDefinition中的自己有的属性值
 					mbd.overrideFrom(bd);
 				}
 
@@ -1507,21 +1516,31 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @see #registerDependentBean
 	 */
 	protected void registerDisposableBeanIfNecessary(String beanName, Object bean, RootBeanDefinition mbd) {
+		// 如果有安全管理器，获取其访问控制上下文
 		AccessControlContext acc = (System.getSecurityManager() != null ? getAccessControlContext() : null);
+		// 如果mbd不是prototype作用域 && bean在关闭时需要销毁
 		if (!mbd.isPrototype() && requiresDestruction(bean, mbd)) {
+			// 如果mbd时单例作用域
 			if (mbd.isSingleton()) {
 				// Register a DisposableBean implementation that performs all destruction
 				// work for the given bean: DestructionAwareBeanPostProcessors,
 				// DisposableBean interface, custom destroy method.
+				// 注册一个一次性bean实现来执行给定Bean的销毁工作：DestructionAwareBeanPostProcessors 一次性bean接口，自定义销毁方法
+				// DisposableBeanAdapter:实际一次性Bean和可运行接口适配器，对给定Bean实例执行各种销毁步骤
+				// 构建Bean对应的DisposableBeanAdapter对象，与beanName绑定到 注册中心的一次性Bean列表中
 				registerDisposableBean(beanName,
 						new DisposableBeanAdapter(bean, beanName, mbd, getBeanPostProcessors(), acc));
 			}
 			else {
 				// A bean with a custom scope...
+				// 具有自定义作用域的bean
 				Scope scope = this.scopes.get(mbd.getScope());
+				// 如果作用域为null
 				if (scope == null) {
+					// 非法状态异常：无作用登记为作用名称“mbd。getScope”
 					throw new IllegalStateException("No Scope registered for scope '" + mbd.getScope() + "'");
 				}
+				// 注册一个回调，在销毁作用域中将构建Bean对应的DisposableBeanAdapter对象指定（或者在销毁整个作用域时执行，如果作用域没有销毁单个对象，而是全部终止）
 				scope.registerDestructionCallback(beanName,
 						new DisposableBeanAdapter(bean, beanName, mbd, getBeanPostProcessors(), acc));
 			}

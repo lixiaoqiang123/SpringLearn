@@ -31,6 +31,8 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.ClassUtils;
 
 /**
+ * 	component-scan 会注册internal内部处理器等
+ *
  * Utility class that allows for convenient registration of common
  * {@link org.springframework.beans.factory.config.BeanPostProcessor} and
  * {@link org.springframework.beans.factory.config.BeanFactoryPostProcessor}

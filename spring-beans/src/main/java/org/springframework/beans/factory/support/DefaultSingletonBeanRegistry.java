@@ -81,15 +81,31 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	/** Cache of singleton objects: bean name --> bean instance */
+	/**
+	 * 一级缓存
+	 * 用于保存BeanName和创建Bean实例之间的关系
+	 */
 	private final Map<String, Object> singletonObjects = new ConcurrentHashMap<String, Object>(64);
 
 	/** Cache of singleton factories: bean name --> ObjectFactory */
+	/**
+	 * 三级缓存
+	 * 用于保存BeanName和创建bean工厂之间的关系
+	 */
 	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<String, ObjectFactory<?>>(16);
 
 	/** Cache of early singleton objects: bean name --> bean instance */
+	/**
+	 * 二级缓存
+	 * 保存BeanName和创建bean实例之间的关系，与singletonFactories的不同之处在于，当一个单例Bean被放到这里之后，那么当bean还在创建过程中
+	 * 就可以通过getBean方法获取到，可以方便进行循环依赖的检测
+	 */
 	private final Map<String, Object> earlySingletonObjects = new HashMap<String, Object>(16);
 
 	/** Set of registered singletons, containing the bean names in registration order */
+	/**
+	 * 用来保存当前所有已经注册的bean
+	 */
 	private final Set<String> registeredSingletons = new LinkedHashSet<String>(64);
 
 	/** Names of beans that are currently in creation (using a ConcurrentHashMap as a Set) */

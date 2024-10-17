@@ -363,9 +363,11 @@ class ConstructorResolver {
 
 		BeanWrapperImpl bw = new BeanWrapperImpl();
 		this.beanFactory.initBeanWrapper(bw);
-
+		//工厂实例
 		Object factoryBean;
+		//工厂类型
 		Class<?> factoryClass;
+		//是否是静态的，判断采用静态工厂还是实例工厂方式
 		boolean isStatic;
 
 		String factoryBeanName = mbd.getFactoryBeanName();
@@ -392,18 +394,23 @@ class ConstructorResolver {
 			factoryClass = mbd.getBeanClass();
 			isStatic = true;
 		}
-
+		//准备使用的工厂方法
 		Method factoryMethodToUse = null;
+		//准备使用的参数包装器
 		ArgumentsHolder argsHolderToUse = null;
+		//准备使用的参数
 		Object[] argsToUse = null;
 
 		if (explicitArgs != null) {
+			// 如果有显式参数就使用这些参数
 			argsToUse = explicitArgs;
 		}
 		else {
+			// 解析出的参数
 			Object[] argsToResolve = null;
 			synchronized (mbd.constructorArgumentLock) {
 				factoryMethodToUse = (Method) mbd.resolvedConstructorOrFactoryMethod;
+				// 如果有工厂方法，且构造函数已经解析了
 				if (factoryMethodToUse != null && mbd.constructorArgumentsResolved) {
 					// Found a cached factory method...
 					argsToUse = mbd.resolvedConstructorArguments;
@@ -416,13 +423,17 @@ class ConstructorResolver {
 				argsToUse = resolvePreparedArguments(beanName, mbd, bw, factoryMethodToUse, argsToResolve);
 			}
 		}
-
+		// 如果没解析过，就获取factoryClass的用户定义类型，因为此时factoryClass可能是cglib动态代理
+		// 所以要获取用父类的类型。如果工厂方法是唯一的，就是没有重载的，就获取解析的工厂方法，如果不为空，就添加到一个不可变列表里；
+		// 如果为空的话，就要去找出factoryClass的以及父类的所有的方法，进一步找出方法修饰符一致且名字跟工厂方法名字相同的且是bean注解的方法，并放入列表中
 		if (factoryMethodToUse == null || argsToUse == null) {
 			// Need to determine the factory method...
 			// Try all methods with this name to see if they match the given arguments.
+			// 获取用户定义的类；获取factoryClass的用户定义类型，因为此时factoryClass可能是cglib动态代理；如果是代理，就要获取父类的类型
 			factoryClass = ClassUtils.getUserClass(factoryClass);
 
 			Method[] rawCandidates = getCandidateMethods(factoryClass, mbd);
+			// 方法集合
 			List<Method> candidateSet = new ArrayList<Method>();
 			for (Method candidate : rawCandidates) {
 				if (Modifier.isStatic(candidate.getModifiers()) == isStatic && mbd.isFactoryMethod(candidate)) {
@@ -431,14 +442,17 @@ class ConstructorResolver {
 			}
 			Method[] candidates = candidateSet.toArray(new Method[candidateSet.size()]);
 			AutowireUtils.sortFactoryMethods(candidates);
-
+			// 构造器参数值
 			ConstructorArgumentValues resolvedValues = null;
 			boolean autowiring = (mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_CONSTRUCTOR);
+			// 最小的类型差距
 			int minTypeDiffWeight = Integer.MAX_VALUE;
+			// 模糊的工厂方法集合
 			Set<Method> ambiguousFactoryMethods = null;
-
+			// 最小参数个数
 			int minNrOfArgs;
 			if (explicitArgs != null) {
+				// 如果存在显示参数，就是显示参数的个数
 				minNrOfArgs = explicitArgs.length;
 			}
 			else {
@@ -500,10 +514,11 @@ class ConstructorResolver {
 						}
 						argsHolder = new ArgumentsHolder(explicitArgs);
 					}
-
+					// 根据参数类型匹配，获取类型的差异值
 					int typeDiffWeight = (mbd.isLenientConstructorResolution() ?
 							argsHolder.getTypeDifferenceWeight(paramTypes) : argsHolder.getAssignabilityWeight(paramTypes));
 					// Choose this factory method if it represents the closest match.
+					// 保存最小的，说明参数类型相近
 					if (typeDiffWeight < minTypeDiffWeight) {
 						factoryMethodToUse = candidate;
 						argsHolderToUse = argsHolder;
@@ -516,6 +531,7 @@ class ConstructorResolver {
 					// and eventually raise an ambiguity exception.
 					// However, only perform that check in non-lenient constructor resolution mode,
 					// and explicitly ignore overridden methods (with the same parameter signature).
+					// 如果出现类型差异相同，参数个数也相同的，而且需要严格判断，参数长度也一样，常数类型也一样，就可能会无法判定要实例化哪个，就会报异常
 					else if (factoryMethodToUse != null && typeDiffWeight == minTypeDiffWeight &&
 							!mbd.isLenientConstructorResolution() &&
 							paramTypes.length == factoryMethodToUse.getParameterTypes().length &&

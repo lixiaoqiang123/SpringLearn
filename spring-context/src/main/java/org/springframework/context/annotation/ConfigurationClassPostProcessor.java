@@ -210,7 +210,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		RootBeanDefinition iabpp = new RootBeanDefinition(ImportAwareBeanPostProcessor.class);
 		iabpp.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 		registry.registerBeanDefinition(IMPORT_AWARE_PROCESSOR_BEAN_NAME, iabpp);
-
+		// 生成一个唯一hashcode值，作为唯一标识
 		int registryId = System.identityHashCode(registry);
 		if (this.registriesPostProcessed.contains(registryId)) {
 			throw new IllegalStateException(
@@ -249,26 +249,38 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	 * {@link Configuration} classes.
 	 */
 	public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
+		// 创建存放BeanDefinitionHolder的对象集合
 		Set<BeanDefinitionHolder> configCandidates = new LinkedHashSet<BeanDefinitionHolder>();
+		// 当前registry就是DefaultListableBeanFactory,获取所有已经注册的BeanDefinition的beanName
 		for (String beanName : registry.getBeanDefinitionNames()) {
+			// 获取指定名称的BeanDefinition对象
 			BeanDefinition beanDef = registry.getBeanDefinition(beanName);
+			// 判断当前BeanDefinition是否是一个配置类，并为BeanDifinition设置属性为lite或者full，此处设置属性值是为了后续进行调用
+			// 如果Configuration配置proxyBeanMethods代理为true则为full
+			// 如果加了@Bean、@Component、@ComponentScan、@Import、@ImportResource注解，则设置为lite
+			// 如果配置类上被@Order注解标注，则设置BeanDefinition的order属性值
 			if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
 				configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
 			}
 		}
 
 		// Return immediately if no @Configuration classes were found
+		// 如果没找到配置类，直接返回
 		if (configCandidates.isEmpty()) {
 			return;
 		}
 
 		// Detect any custom bean name generation strategy supplied through the enclosing application context
+		// 判断当前是否有自定义名称生成策略，如果有的话会按照策略生成beanName
 		SingletonBeanRegistry singletonRegistry = null;
 		if (registry instanceof SingletonBeanRegistry) {
 			singletonRegistry = (SingletonBeanRegistry) registry;
+			// 判断是否有自定义beanName生成器
 			if (!this.localBeanNameGeneratorSet && singletonRegistry.containsSingleton(CONFIGURATION_BEAN_NAME_GENERATOR)) {
 				BeanNameGenerator generator = (BeanNameGenerator) singletonRegistry.getSingleton(CONFIGURATION_BEAN_NAME_GENERATOR);
+				// 设置组件扫描的beanName生成策略
 				this.componentScanBeanNameGenerator = generator;
+				// 设置import bean name生成策略
 				this.importBeanNameGenerator = generator;
 			}
 		}

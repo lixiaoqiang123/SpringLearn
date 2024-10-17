@@ -130,10 +130,13 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	 * @throws BeansException if context creation failed
 	 * @see #refresh()
 	 */
+	//ApplicationContext允许上下文嵌套，对于一个Bean的查找，优先从当前上下文查找，如果没找到，则从父上下文查找，逐级向上。所以支持传入parent参数
 	public ClassPathXmlApplicationContext(String[] configLocations, boolean refresh, ApplicationContext parent)
 			throws BeansException {
-
+		//调用父构造方法，并匹配对应的ResourcePatternResolver资源加载器，Default is a PathMatchingResourcePatternResolver,
 		super(parent);
+		//设置Bean配置路径,设置Enviroment,如果路径中有placeHolder，那么会进行替换
+		//AbstractRefreshableConfigApplicationContext    configLocations
 		setConfigLocations(configLocations);
 		if (refresh) {
 			refresh();

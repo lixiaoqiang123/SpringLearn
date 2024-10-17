@@ -1,13 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<!--<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">-->
 
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+				http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 
-	<bean id="someMessageSource" name="yourMessageSource"
-			class="org.springframework.context.support.StaticMessageSource"/>
+<!--	<context:component-scan base-package="mine"></context:component-scan>-->
+<!--	<bean id="someMessageSource" name="yourMessageSource"-->
+<!--			class="org.springframework.context.support.StaticMessageSource"/>-->
 
-	<bean class="org.springframework.context.support.ClassPathXmlApplicationContext" lazy-init="true">
-		<constructor-arg value="someNonExistentFile.xml"/>
-	</bean>
+<!--	<bean class="org.springframework.context.support.ClassPathXmlApplicationContext" lazy-init="true">-->
+<!--		<constructor-arg value="someNonExistentFile.xml"/>-->
+<!--	</bean>-->
 
+<!--&lt;!&ndash;	<bean class="mine.MyBeanFactoryPostProcessor"></bean>&ndash;&gt;-->
+<!--	<bean id="phone" class="mine.Phone" init-method="getName">-->
+<!--		<property name="name" value="222"/>-->
+<!--	</bean>-->
+<!--	<bean id="phone" class="mine.Phone" scope="prototype" >-->
+<!--		<meta key="name" value="123"/>-->
+<!--		<property name="name" value="222"/>-->
+<!--		<constructor-arg value="333"/>-->
+<!--	</bean>-->
+<!--	<bean id="computer" class="mine.Computer"/>-->
+
+<!--	<bean id="abstractFactory" class="mine.AbstractFactory">-->
+<!--		&lt;!&ndash;name属性指定抽象工厂的抽象方法名。而bean的值即bean的id值&ndash;&gt;-->
+<!--		<lookup-method bean="phone" name="createProduct"></lookup-method>-->
+<!--	</bean>-->
+
+	<bean id="phone" class="mine.Phone"></bean>
+	<bean id="computer" class="mine.Computer"></bean>
+	<bean id="logAop" class="mine.LogAop"></bean>
+	<aop:config>
+			<aop:aspect ref="logAop">
+					<aop:pointcut id="logCut" expression="execution(* mine.Phone.*(..))"/>
+					<aop:before method="before" pointcut-ref="logCut"/>
+					<aop:after method="after" pointcut-ref="logCut"/>
+			</aop:aspect>
+	</aop:config>
 </beans>
+

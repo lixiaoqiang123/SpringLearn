@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.springframework.beans.BeansException;
 
+//扩展了BeanFactory的功能，可以一下获取到接口的实现bean，而不需要按照名称一个一个去查找
 /**
  * Extension of the {@link BeanFactory} interface to be implemented by bean factories
  * that can enumerate all their bean instances, rather than attempting bean lookup

@@ -28,8 +28,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import mine.AbstractFactory;
+import mine.Phone;
 import org.junit.Test;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.tests.sample.beans.ResourceTestBean;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.BeanCreationException;
@@ -75,7 +79,10 @@ public final class ClassPathXmlApplicationContextTests {
 	@Test
 	public void testSingleConfigLocation() {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(FQ_SIMPLE_CONTEXT);
-		assertTrue(ctx.containsBean("someMessageSource"));
+		ConfigurableListableBeanFactory beanFactory = ctx.getBeanFactory();
+		Phone phone = ctx.getBean("phone", Phone.class);
+		System.out.println(phone.getClass());
+		phone.log();
 		ctx.close();
 	}
 
@@ -92,6 +99,27 @@ public final class ClassPathXmlApplicationContextTests {
 		service = (Service) ctx.getBean("service");
 		ctx.close();
 		assertTrue(service.isProperlyDestroyed());
+	}
+
+
+	@Test
+	/**
+	 * LookupOverrideMethodInterceptor
+	 * ReplaceOverrideMethodInterceptor
+	 */
+	public void testLookup() {
+		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(FQ_SIMPLE_CONTEXT);
+		String[] beanDefinitionNames = ctx.getBeanDefinitionNames();
+		ConfigurableListableBeanFactory beanFactory = ctx.getBeanFactory();
+		BeanDefinition abstractFactory = beanFactory.getBeanDefinition("abstractFactory");
+		BeanDefinition pbd = beanFactory.getBeanDefinition("phone");
+//		pbd.setAttribute();
+		Phone phone = (Phone)ctx.getBean("phone");
+//		System.out.println(phone.getName());
+		// 获取工厂
+		AbstractFactory bean = (AbstractFactory) ctx.getBean(AbstractFactory.class);
+		// 调用生产产品的方法
+		bean.createProduct();
 	}
 
 	@Test

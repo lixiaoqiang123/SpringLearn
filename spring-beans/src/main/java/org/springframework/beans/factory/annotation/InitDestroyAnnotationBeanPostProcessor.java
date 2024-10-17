@@ -161,7 +161,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 		}
 	}
 
-
+	//处理 @PostConstruct @PreDestory 注解
 	private LifecycleMetadata findLifecycleMetadata(Class<?> clazz) {
 		if (this.lifecycleMetadataCache == null) {
 			// Happens after deserialization, during destruction...
