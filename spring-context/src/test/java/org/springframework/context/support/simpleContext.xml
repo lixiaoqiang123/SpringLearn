@@ -34,13 +34,16 @@
 <!--	</bean>-->
 
 	<bean id="phone" class="mine.Phone"></bean>
-	<bean id="computer" class="mine.Computer"></bean>
+<!--	<bean id="computer" class="mine.Computer"></bean>-->
 	<bean id="logAop" class="mine.LogAop"></bean>
 	<aop:config>
+			<aop:pointcut id="logCut" expression="execution(* mine.Phone.*(..))"/>
 			<aop:aspect ref="logAop">
-					<aop:pointcut id="logCut" expression="execution(* mine.Phone.*(..))"/>
+					<aop:around method="around" pointcut-ref="logCut"/>
 					<aop:before method="before" pointcut-ref="logCut"/>
 					<aop:after method="after" pointcut-ref="logCut"/>
+					<aop:after-throwing method="afterthrowing" pointcut-ref="logCut" throwing="e"/>
+					<aop:after-returning method="afterReturning" pointcut-ref="logCut" returning="result"/>
 			</aop:aspect>
 	</aop:config>
 </beans>

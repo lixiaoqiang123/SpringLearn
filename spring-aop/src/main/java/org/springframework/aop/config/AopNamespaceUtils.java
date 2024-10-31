@@ -106,11 +106,14 @@ public abstract class AopNamespaceUtils {
 
 
 	private static void useClassProxyingIfNecessary(BeanDefinitionRegistry registry, Element sourceElement) {
+		//<aop:config proxy-target-class="true"> ：配置为强制使用CGLIB代理
+		//<aop:aspectj-autoproxy proxy-target-class="true"/> ：配置为CGLIB代理+@AspectJ自动代理支持
 		if (sourceElement != null) {
 			boolean proxyTargetClass = Boolean.valueOf(sourceElement.getAttribute(PROXY_TARGET_CLASS_ATTRIBUTE));
 			if (proxyTargetClass) {
 				AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(registry);
 			}
+			//<aop:aspectj-autoproxy export-proxy="true"/> ：支持通过AopContext.currentProxy()来暴露当前代理类。
 			boolean exposeProxy = Boolean.valueOf(sourceElement.getAttribute(EXPOSE_PROXY_ATTRIBUTE));
 			if (exposeProxy) {
 				AopConfigUtils.forceAutoProxyCreatorToExposeProxy(registry);

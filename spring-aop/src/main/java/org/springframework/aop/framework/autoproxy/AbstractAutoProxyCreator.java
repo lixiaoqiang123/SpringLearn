@@ -449,11 +449,11 @@ public abstract class AbstractAutoProxyCreator extends ProxyConfig
 	 */
 	protected Object createProxy(
 			Class<?> beanClass, String beanName, Object[] specificInterceptors, TargetSource targetSource) {
-
+		//创建代理工厂
 		ProxyFactory proxyFactory = new ProxyFactory();
+		//获取当前类中的属性
 		// Copy our properties (proxyTargetClass etc) inherited from ProxyConfig.
 		proxyFactory.copyFrom(this);
-
 		if (!shouldProxyTargetClass(beanClass, beanName)) {
 			// Must allow for introductions; can't just set interfaces to
 			// the target's interfaces only.

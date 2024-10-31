@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class Phone extends Product{
 
-    @Autowired
-    private Computer computer;
+//    @Autowired
+//    private Computer computer;
 
     public void log(){
         System.out.println("Phone 切面加载");

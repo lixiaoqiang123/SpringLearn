@@ -31,6 +31,7 @@ import java.util.Map;
 import mine.AbstractFactory;
 import mine.Phone;
 import org.junit.Test;
+import org.mockito.cglib.core.DebuggingClassWriter;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -78,6 +79,7 @@ public final class ClassPathXmlApplicationContextTests {
 
 	@Test
 	public void testSingleConfigLocation() {
+		System.setProperty(DebuggingClassWriter.DEBUG_LOCATION_PROPERTY,"E:\\WorkSpace\\spring-framework\\cglib");
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(FQ_SIMPLE_CONTEXT);
 		ConfigurableListableBeanFactory beanFactory = ctx.getBeanFactory();
 		Phone phone = ctx.getBean("phone", Phone.class);

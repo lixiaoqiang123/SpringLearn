@@ -51,8 +51,12 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 
 		// This is somewhat tricky... we have to process introductions first,
 		// but we need to preserve order in the ultimate list.
+		// 创建一个初始大小为 之前获取到的 通知个数的集合
 		List<Object> interceptorList = new ArrayList<Object>(config.getAdvisors().length);
 		boolean hasIntroductions = hasMatchingIntroductions(config, targetClass);
+		//这里使用了一个单例模式，获取DefaultAdvisorAdapterRegistry实例
+		//在Spring中把每一个功能都分的很细，每个功能都会有相应的类去处理，符合单一职责原则的地方很多，值得借鉴
+		// AdvisorAdapterRegistry这个类的主要作用是将Advice适配为Advisor，将Advisor适配为对应的MethodInterceptor
 		AdvisorAdapterRegistry registry = GlobalAdvisorAdapterRegistry.getInstance();
 		for (Advisor advisor : config.getAdvisors()) {
 			if (advisor instanceof PointcutAdvisor) {

@@ -45,10 +45,12 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 
 	/**
 	 * Create a new DefaultAdvisorAdapterRegistry, registering well-known adapters.
+	 * 这三个没有实现MethodInterceptor，所以需要在这里注册
 	 */
 	public DefaultAdvisorAdapterRegistry() {
 		registerAdvisorAdapter(new MethodBeforeAdviceAdapter());
 		registerAdvisorAdapter(new AfterReturningAdviceAdapter());
+		// 可以方便后续自定义扩展
 		registerAdvisorAdapter(new ThrowsAdviceAdapter());
 	}
 
