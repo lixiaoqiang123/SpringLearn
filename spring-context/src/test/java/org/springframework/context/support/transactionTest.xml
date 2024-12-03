@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+				http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+	             http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+	<bean  id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+		<property name="driverClassName" value="${jdbc.driver}"/>
+		<property name="url" value="${jdbc.url}"/>
+		<property name="username" value="${jdbc.user}"/>
+		<property name="password" value="${jdbc.password}"/>
+	</bean>
+	<bean id="jdbcTemplate"  class="org.springframework.jdbc.core.JdbcTemplate">
+		<constructor-arg ref="dataSource"/>
+	</bean>
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	<bean id="bookService" class="mine.tx.xml.service.BookService">
+		<property name="bookDao" ref="bookDao"/>
+	</bean>
+	<bean id="bookDao" class="mine.tx.xml.dao.BookDao">
+		<property name="jdbcTemplate" ref="jdbcTemplate"/>
+	</bean>
+
+	<aop:config>
+		<aop:pointcut id="txPoint" expression="execution(* mine.tx.xml.*.*.*(..))"/>
+		<aop:advisor advice-ref="myAdvice" pointcut-ref="txPoint"></aop:advisor>
+	</aop:config>
+	<tx:advice id="myAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="checkout" propagation="REQUIRED" />
+			<tx:method name="updateStock" propagation="NESTED" />
+		</tx:attributes>
+	</tx:advice>
+</beans>
+
